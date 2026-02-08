@@ -1369,6 +1369,34 @@
           </div>
         </div>
       </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">🛡️</span>
+          <span class="acc-label">Can I use another VPN alongside this?</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            <strong>On your Mac</strong> (the server) — yes. Tailscale and commercial VPNs (NordVPN, ExpressVPN, etc.) coexist fine since they use separate network interfaces. Corporate VPNs (Cisco AnyConnect, GlobalProtect, Zscaler) can be trickier — they sometimes take over all routing and block other tunnels.<br><br>
+            <strong>On your iPhone</strong> — no. iOS only allows one VPN tunnel at a time. Turning on a commercial VPN will disconnect Tailscale, and vice versa. You have to pick one.<br><br>
+            <strong>Workaround:</strong> Run the commercial VPN on your Mac instead. Your phone connects to your Mac via Tailscale, and your Mac's traffic goes through the VPN. Best of both worlds — encrypted tunnel to your Mac <em>and</em> VPN protection on the Mac's outbound traffic.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">📜</span>
+          <span class="acc-label">Can't scroll in the terminal</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            tmux doesn't enable mouse/scroll support by default. Create or edit <code>~/.tmux.conf</code> on your Mac and add <code>set -g mouse on</code>. Then reload with <code>tmux source ~/.tmux.conf</code> (or just detach and reattach). Scrolling, clicking, and pane resizing will all work after that. While you're at it, add <code>set -g history-limit 10000</code> so you have a decent scrollback buffer.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

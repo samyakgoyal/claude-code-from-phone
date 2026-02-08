@@ -65,6 +65,12 @@ For someone to break in, they'd need to compromise your Tailscale account, know 
 
 Spoiler: it's always `sg`.
 
+## FAQ
+
+**Can I use another VPN alongside Tailscale?** On your Mac — yes, both run fine. On iPhone — no, iOS only allows one VPN at a time. Workaround: run the VPN on your Mac instead. Phone connects via Tailscale, Mac's traffic goes through the VPN.
+
+**Can't scroll in the terminal?** Add `set -g mouse on` to `~/.tmux.conf` on your Mac, then `tmux source ~/.tmux.conf`. Scrolling works after that.
+
 ## tmux cheat sheet
 
 | Shortcut | Action |
