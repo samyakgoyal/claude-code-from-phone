@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code From Your Phone</title>
+
+<!-- OG Meta Tags -->
+<meta property="og:title" content="Claude Code From Your Phone">
+<meta property="og:description" content="Run Claude Code on your Mac from your iPhone. Tailscale + SSH + tmux. Zero cost, 15 minutes, works from anywhere.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://github.com/samyakgoyal/claude-code-from-phone">
+<meta property="og:image" content="https://raw.githubusercontent.com/samyakgoyal/claude-code-from-phone/main/og-image.png">
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claude Code From Your Phone">
+<meta name="twitter:description" content="Run Claude Code on your Mac from your iPhone. Tailscale + SSH + tmux. Zero cost, 15 minutes, works from anywhere.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/samyakgoyal/claude-code-from-phone/main/og-image.png">
+
+<!-- Inline SVG Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><rect x='10' y='15' width='80' height='55' rx='8' fill='%2312121a' stroke='%236ee7b7' stroke-width='3'/><text x='22' y='48' font-family='monospace' font-size='22' fill='%236ee7b7'>$_</text><rect x='30' y='75' width='40' height='18' rx='4' fill='%231a1a26' stroke='%236ee7b7' stroke-width='2'/><circle cx='50' cy='84' r='3' fill='%236ee7b7'/></svg>">
+
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -23,6 +40,10 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background: var(--bg);
     color: var(--text);
@@ -30,6 +51,105 @@
     font-weight: 400;
     line-height: 1.7;
     overflow-x: hidden;
+  }
+
+  /* Reading Progress Bar */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--blue));
+    z-index: 10001;
+    transition: width 0.1s linear;
+  }
+
+  /* Back to Top Button */
+  .back-to-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s, background 0.2s;
+    pointer-events: none;
+  }
+
+  .back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .back-to-top:hover {
+    background: var(--accent-dim);
+  }
+
+  /* Mini Table of Contents */
+  .mini-toc {
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mini-toc a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+
+  .mini-toc a::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .mini-toc a:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .mini-toc a:hover::before {
+    background: var(--accent);
+  }
+
+  .mini-toc a.active {
+    color: var(--accent);
+  }
+
+  .mini-toc a.active::before {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
   }
 
   .noise {
@@ -62,11 +182,22 @@
     z-index: 1;
   }
 
+  /* Scroll-triggered fade-in */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* Hero */
   .hero {
     text-align: center;
     margin-bottom: 80px;
-    animation: fadeUp 0.8s ease-out;
   }
 
   .hero-emoji {
@@ -98,13 +229,7 @@
   /* Section */
   .section {
     margin-bottom: 72px;
-    animation: fadeUp 0.8s ease-out both;
   }
-
-  .section:nth-child(2) { animation-delay: 0.1s; }
-  .section:nth-child(3) { animation-delay: 0.2s; }
-  .section:nth-child(4) { animation-delay: 0.3s; }
-  .section:nth-child(5) { animation-delay: 0.4s; }
 
   .section-number {
     font-family: 'JetBrains Mono', monospace;
@@ -236,6 +361,35 @@
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .code-header-title {
+    flex: 1;
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+    background: var(--surface);
+  }
+
+  .copy-btn.copied {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .code-dot {
@@ -513,6 +667,212 @@
     margin-left: 6px;
   }
 
+  /* Accordion / FAQ */
+  .accordion {
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .accordion-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .accordion-item:hover {
+    border-color: var(--accent-dim);
+  }
+
+  .accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .accordion-trigger .acc-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .accordion-trigger .acc-label {
+    flex: 1;
+  }
+
+  .accordion-trigger .acc-chevron {
+    color: var(--text-dim);
+    font-size: 14px;
+    transition: transform 0.3s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .accordion-item.open .acc-chevron {
+    transform: rotate(90deg);
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+
+  .accordion-content-inner {
+    padding: 0 20px 16px 52px;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .accordion-content-inner code {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Alt Card Grid */
+  .alt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .alt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .alt-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-dim);
+  }
+
+  .alt-card .alt-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .alt-card .alt-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .alt-card .alt-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Tips List */
+  .tip-list {
+    list-style: none;
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tip-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+
+  .tip-item:hover {
+    border-color: var(--accent-dim);
+  }
+
+  .tip-item .tip-title {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 15px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tip-item .tip-title .tip-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: var(--surface-2);
+    border: 1px solid var(--accent-dim);
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tip-item .tip-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .tip-item .tip-desc code {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* GitHub Star Button */
+  .github-star-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid var(--accent-dim);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .github-star-btn:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .github-star-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
   /* Footer */
   .footer {
     text-align: center;
@@ -522,6 +882,22 @@
     color: var(--text-dim);
     font-size: 14px;
     font-style: italic;
+  }
+
+  .footer .ps-note {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: normal;
+  }
+
+  .footer .made-with {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--border);
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
   }
 
   /* Divider */
@@ -562,34 +938,52 @@
   }
 
   .tldr li::before {
-    content: '→';
+    content: '\2192';
     position: absolute;
     left: 0;
     color: var(--accent);
   }
 
   /* Animations */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
   }
 
   /* Responsive */
+  @media (max-width: 1100px) {
+    .mini-toc {
+      display: none;
+    }
+  }
+
   @media (max-width: 600px) {
     .hero h1 { font-size: 32px; }
-    .stack-grid, .shortcut-grid { grid-template-columns: 1fr; }
+    .stack-grid, .shortcut-grid, .alt-grid { grid-template-columns: 1fr; }
     .diagram-flow { flex-direction: column; }
     .diagram-arrow { transform: rotate(90deg); }
     .container { padding: 48px 16px 80px; }
+    .back-to-top { bottom: 20px; right: 20px; }
   }
 </style>
 </head>
 <body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<button class="back-to-top" id="backToTop" title="Back to top" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+
+<nav class="mini-toc" id="miniToc">
+  <a href="#section-01">01 What</a>
+  <a href="#section-02">02 How</a>
+  <a href="#section-03">03 Setup</a>
+  <a href="#section-04">04 Safety</a>
+  <a href="#section-05">05 Troubleshooting</a>
+  <a href="#section-06">06 Alternatives</a>
+  <a href="#section-07">07 Level Up</a>
+</nav>
 
 <div class="noise"></div>
 <div class="glow-orb glow-1"></div>
@@ -598,14 +992,14 @@
 <div class="container">
 
   <!-- Hero -->
-  <div class="hero">
+  <div class="hero fade-in">
     <div class="hero-emoji">📱</div>
     <h1>Claude Code From Your Phone</h1>
     <p class="subtitle">A guide for people who can't stop coding — even when their laptop is in another room.</p>
   </div>
 
   <!-- SECTION 1: WHAT -->
-  <div class="section">
+  <div class="section fade-in" id="section-01">
     <div class="section-number">01 — What</div>
     <h2>What Is This?</h2>
     <p>This setup lets you run <strong>Claude Code</strong> (or any terminal session) on your Mac — from your iPhone. From anywhere. Home, office, gym, train, bathroom stall during a standup you forgot to mute.</p>
@@ -615,30 +1009,30 @@
       <div class="stack-card">
         <div class="label">Tailscale</div>
         <div class="desc">Private encrypted network between your devices. No open ports needed.</div>
-        <div class="cost">cost: ₹0</div>
+        <div class="cost">cost: &#x20B9;0</div>
       </div>
       <div class="stack-card">
         <div class="label">Termius</div>
         <div class="desc">SSH client for iPhone. Terminal on your phone, but prettier.</div>
-        <div class="cost">cost: ₹0</div>
+        <div class="cost">cost: &#x20B9;0</div>
       </div>
       <div class="stack-card">
         <div class="label">tmux</div>
         <div class="desc">Keeps sessions alive when you disconnect. Pause button for terminals.</div>
-        <div class="cost">cost: ₹0</div>
+        <div class="cost">cost: &#x20B9;0</div>
       </div>
       <div class="stack-card">
         <div class="label">SSH</div>
         <div class="desc">The actual connection protocol. Built into macOS since forever.</div>
-        <div class="cost">cost: ₹0</div>
+        <div class="cost">cost: &#x20B9;0</div>
       </div>
     </div>
 
-    <p style="text-align: center; font-size: 14px; color: var(--text-dim);">Total cost: <strong style="color: var(--accent);">₹0</strong> · Setup time: <strong style="color: var(--accent);">~15 min</strong> · Productivity lost to "let me just check one thing": <strong style="color: var(--orange);">immeasurable</strong></p>
+    <p style="text-align: center; font-size: 14px; color: var(--text-dim);">Total cost: <strong style="color: var(--accent);">&#x20B9;0</strong> · Setup time: <strong style="color: var(--accent);">~15 min</strong> · Productivity lost to "let me just check one thing": <strong style="color: var(--orange);">immeasurable</strong></p>
   </div>
 
   <!-- SECTION 2: HOW -->
-  <div class="section">
+  <div class="section fade-in" id="section-02">
     <div class="section-number">02 — How</div>
     <h2>How It Works</h2>
     <p>Here's what happens when you open Termius at the gym and type <code style="color: var(--accent); background: var(--surface-2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 14px;">sg</code>:</p>
@@ -650,13 +1044,13 @@
           <div class="node-label">iPhone</div>
           <div class="node-sub">Termius · @ gym</div>
         </div>
-        <div class="diagram-arrow">→</div>
+        <div class="diagram-arrow">&rarr;</div>
         <div class="diagram-node" style="border-color: var(--accent-dim);">
           <div class="node-icon">🔐</div>
           <div class="node-label">Tailscale</div>
           <div class="node-sub">WireGuard tunnel</div>
         </div>
-        <div class="diagram-arrow">→</div>
+        <div class="diagram-arrow">&rarr;</div>
         <div class="diagram-node">
           <div class="node-icon">💻</div>
           <div class="node-label">Mac</div>
@@ -674,10 +1068,10 @@
       <div class="flow-step">You tap <strong>'l'</strong> on iPhone keyboard</div>
       <div class="flow-step">Termius encrypts it <span class="enc-tag">SSH · AES-256</span></div>
       <div class="flow-step">iOS sends via Tailscale <span class="enc-tag">WireGuard · ChaCha20</span></div>
-      <div class="flow-step">Packet travels: Phone → Internet → Router → Mac</div>
+      <div class="flow-step">Packet travels: Phone &rarr; Internet &rarr; Router &rarr; Mac</div>
       <div class="flow-step">Mac's Tailscale decrypts the WireGuard layer</div>
       <div class="flow-step">Mac's SSH daemon decrypts the SSH layer</div>
-      <div class="flow-step">Plaintext <strong>'l'</strong> arrives at tmux → Claude Code</div>
+      <div class="flow-step">Plaintext <strong>'l'</strong> arrives at tmux &rarr; Claude Code</div>
       <div class="flow-step">Response travels back <strong>the same way, encrypted twice</strong></div>
     </div>
 
@@ -685,7 +1079,7 @@
   </div>
 
   <!-- SECTION 3: SETUP -->
-  <div class="section">
+  <div class="section fade-in" id="section-03">
     <div class="section-number">03 — Setup</div>
     <h2>Setting It Up (15 min, one-time)</h2>
 
@@ -696,46 +1090,48 @@
         <div class="code-block">
           <div class="code-header">
             <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
-            Terminal
+            <span class="code-header-title">Terminal</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
           <div class="code-body"><span class="cmd">brew install</span> tailscale
 <span class="cmd">sudo brew services start</span> tailscale
 <span class="cmd">sudo tailscale login</span>
-<span class="comment"># Browser opens → sign in with Google/Apple/GitHub</span>
+<span class="comment"># Browser opens &rarr; sign in with Google/Apple/GitHub</span>
 
 <span class="comment"># Grab your IP:</span>
 <span class="cmd">sudo tailscale status</span>
 <span class="comment"># Note the 100.x.x.x address</span></div>
         </div>
         <div class="callout warn">
-          <div class="callout-icon">⚠️</div>
+          <div class="callout-icon">&#x26A0;&#xFE0F;</div>
           <div class="callout-text">On corporate VPN? Disconnect it first. VPNs and Tailscale get along like two cats in a studio apartment.</div>
         </div>
-        <p><strong>On iPhone:</strong> App Store → download <strong>Tailscale</strong> → sign in with the same account. Done.</p>
+        <p><strong>On iPhone:</strong> App Store &rarr; download <strong>Tailscale</strong> &rarr; sign in with the same account. Done.</p>
       </li>
 
       <li>
         <div class="step-title">Enable SSH on Mac</div>
-        <p><strong>System Settings → General → Sharing → Remote Login → ON</strong></p>
+        <p><strong>System Settings &rarr; General &rarr; Sharing &rarr; Remote Login &rarr; ON</strong></p>
         <div class="code-block">
           <div class="code-header">
             <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
-            Verify
+            <span class="code-header-title">Verify</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
           <div class="code-body"><span class="cmd">ssh</span> localhost
-<span class="comment"># Password prompt → logs in → you're good</span></div>
+<span class="comment"># Password prompt &rarr; logs in &rarr; you're good</span></div>
         </div>
       </li>
 
       <li>
         <div class="step-title">Termius on iPhone</div>
-        <p>App Store → download <strong>Termius</strong> → add a new host:</p>
+        <p>App Store &rarr; download <strong>Termius</strong> &rarr; add a new host:</p>
         <div style="margin-left: 4px; padding: 12px 0;">
-          <p>• <strong>Hostname:</strong> your Tailscale IP (<code style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">100.x.x.x</code>)</p>
-          <p>• <strong>Username:</strong> whatever <code style="font-family: 'JetBrains Mono', monospace; color: var(--orange);">whoami</code> outputs on your Mac <em style="color: var(--text-dim);">(use the output, not the word "whoami" — yes, this has happened)</em></p>
-          <p>• <strong>Password:</strong> your Mac login password</p>
+          <p>&#x2022; <strong>Hostname:</strong> your Tailscale IP (<code style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">100.x.x.x</code>)</p>
+          <p>&#x2022; <strong>Username:</strong> whatever <code style="font-family: 'JetBrains Mono', monospace; color: var(--orange);">whoami</code> outputs on your Mac <em style="color: var(--text-dim);">(use the output, not the word "whoami" — yes, this has happened)</em></p>
+          <p>&#x2022; <strong>Password:</strong> your Mac login password</p>
         </div>
-        <p>Tap connect → you're inside your Mac's terminal from your phone.</p>
+        <p>Tap connect &rarr; you're inside your Mac's terminal from your phone.</p>
       </li>
 
       <li>
@@ -743,7 +1139,8 @@
         <div class="code-block">
           <div class="code-header">
             <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
-            Install + Magic Alias
+            <span class="code-header-title">Install + Magic Alias</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
           <div class="code-body"><span class="cmd">brew install</span> tmux
 
@@ -755,11 +1152,12 @@
 
       <li>
         <div class="step-title">Keep Mac awake</div>
-        <p><strong>System Settings → Battery → Options → "Prevent automatic sleeping on power adapter" → ON</strong></p>
+        <p><strong>System Settings &rarr; Battery &rarr; Options &rarr; "Prevent automatic sleeping on power adapter" &rarr; ON</strong></p>
         <div class="code-block">
           <div class="code-header">
             <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
-            Or via terminal
+            <span class="code-header-title">Or via terminal</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
           <div class="code-body"><span class="cmd">sudo pmset</span> <span class="flag">-c</span> sleep 0 disksleep 0 displaysleep 5</div>
         </div>
@@ -776,27 +1174,27 @@
       <div class="scenario-row">
         <div class="emoji">🏋️</div>
         <div class="scene">Gym, phone only</div>
-        <div class="action">Termius → sg</div>
+        <div class="action">Termius &rarr; sg</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">💻</div>
         <div class="scene">Office, at your desk</div>
-        <div class="action">Terminal → sg</div>
+        <div class="action">Terminal &rarr; sg</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">☕</div>
         <div class="scene">Coffee break, phone</div>
-        <div class="action">Termius → sg</div>
+        <div class="action">Termius &rarr; sg</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">🚗</div>
         <div class="scene">Commute, phone</div>
-        <div class="action">Termius → sg</div>
+        <div class="action">Termius &rarr; sg</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">🛏️</div>
         <div class="scene">2 AM, rethinking life</div>
-        <div class="action">Termius → sg</div>
+        <div class="action">Termius &rarr; sg</div>
       </div>
     </div>
 
@@ -812,7 +1210,7 @@
   </div>
 
   <!-- SECTION 4: SAFETY -->
-  <div class="section">
+  <div class="section fade-in" id="section-04">
     <div class="section-number">04 — Safety</div>
     <h2>Why This Won't Get You Fired</h2>
     <p><em>"Cool setup, but should I be worried?"</em> — No. Here's the breakdown.</p>
@@ -820,27 +1218,27 @@
     <h3 style="font-size: 18px; margin: 28px 0 16px;">What's NOT Happening</h3>
     <div class="safety-grid">
       <div class="safety-row">
-        <div class="safety-icon safe">✕</div>
+        <div class="safety-icon safe">&#x2715;</div>
         <div class="threat">Mac exposed to the internet</div>
         <div class="verdict">No open ports</div>
       </div>
       <div class="safety-row">
-        <div class="safety-icon safe">✕</div>
+        <div class="safety-icon safe">&#x2715;</div>
         <div class="threat">Unencrypted traffic</div>
         <div class="verdict">Double encrypted</div>
       </div>
       <div class="safety-row">
-        <div class="safety-icon safe">✕</div>
+        <div class="safety-icon safe">&#x2715;</div>
         <div class="threat">Bots scanning your Mac</div>
         <div class="verdict">Invisible to internet</div>
       </div>
       <div class="safety-row">
-        <div class="safety-icon safe">✕</div>
+        <div class="safety-icon safe">&#x2715;</div>
         <div class="threat">Anyone can find your Mac</div>
         <div class="verdict">Only your devices</div>
       </div>
       <div class="safety-row">
-        <div class="safety-icon safe">✕</div>
+        <div class="safety-icon safe">&#x2715;</div>
         <div class="threat">Tailscale reads your traffic</div>
         <div class="verdict">E2E encrypted</div>
       </div>
@@ -887,23 +1285,330 @@
     </div>
   </div>
 
+  <!-- SECTION 5: TROUBLESHOOTING -->
+  <div class="section fade-in" id="section-05">
+    <div class="section-number">05 — Troubleshooting</div>
+    <h2>When Things Go Wrong</h2>
+    <p>Because they will. Not "if" — "when." Here's the greatest hits of "why isn't this working" and how to fix them.</p>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">🔌</span>
+          <span class="acc-label">Can't connect from phone</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            Tailscale needs to be running on <strong>both</strong> devices. Open the Tailscale app on your iPhone and make sure it's connected. On your Mac, check the menu bar icon or run <code>sudo tailscale status</code>. If both show "online" but you still can't connect, try <code>tailscale ping &lt;your-mac-ip&gt;</code> from your phone's Termius to see if packets are getting through. If the ping fails, both devices might be on networks that block WireGuard — Tailscale should fallback to relay, but give it a few seconds.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">💤</span>
+          <span class="acc-label">Connection drops randomly</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            99% chance your Mac fell asleep. Check your <code>pmset</code> settings — you want <code>sleep 0</code> when on power adapter. Also watch out for clamshell mode: if your Mac's lid is closed, it <strong>will</strong> sleep unless it has an external display connected (or you're running <code>caffeinate -s</code> in the background). Pro tip: <code>caffeinate -s &amp;</code> in your tmux session keeps the Mac awake as long as the session exists.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">👻</span>
+          <span class="acc-label">tmux session gone</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            Your Mac restarted. tmux sessions live in RAM — they don't survive reboots. macOS loves a good unsolicited restart (looking at you, automatic updates). Just run <code>sg</code> again to start a fresh session. If this keeps happening, go to <strong>System Settings &rarr; General &rarr; Software Update &rarr; Automatic Updates</strong> and turn off "Install macOS updates." You'll update when <em>you</em> decide, not when Apple does.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">❓</span>
+          <span class="acc-label"><code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; background: none; padding: 0;">sg</code> command not found</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            You're in a new shell that hasn't loaded your aliases. Run <code>source ~/.zshrc</code> and try again. If that doesn't work, check that the alias actually exists: <code>grep "alias sg" ~/.zshrc</code>. If it's not there, the setup step didn't stick — run the <code>echo</code> command from Step 4 again. If you use bash instead of zsh, you need <code>~/.bashrc</code> instead of <code>~/.zshrc</code>.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">🐌</span>
+          <span class="acc-label">Lag / slow typing</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            Your traffic is probably going through Tailscale's DERP relay servers instead of a direct peer-to-peer connection. Run <code>tailscale status</code> on either device and look for the word "relay" next to the other device. Direct connections are way faster. This usually happens when both devices are behind strict NATs. Fix: try connecting to a different WiFi, or switch between WiFi and cellular on your phone. Tailscale will retry the direct connection. If you're stuck on relay permanently, consider Mosh instead of SSH (see Level Up section).
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+          <span class="acc-icon">📶</span>
+          <span class="acc-label">Works on WiFi but not cellular</span>
+          <span class="acc-chevron">&#x276F;</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-content-inner">
+            Some carriers block WireGuard's UDP traffic (port 41641). Tailscale should automatically fall back to DERP relay servers over HTTPS, but this can take a few seconds. If it never connects, force-close and reopen the Tailscale app on your phone. In rare cases, certain carriers in certain countries are just hostile to VPN-like traffic. Not much you can do except switch carriers or use a WiFi hotspot.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: NOT ON IPHONE -->
+  <div class="section fade-in" id="section-06">
+    <div class="section-number">06 — Not on iPhone?</div>
+    <h2>Platform Alternatives</h2>
+    <p>This guide assumes iPhone + Mac because that's what I use. But the core idea works everywhere. Here's how to adapt it.</p>
+
+    <div class="alt-grid">
+      <div class="alt-card">
+        <div class="alt-icon">🤖</div>
+        <div class="alt-title">Android</div>
+        <div class="alt-desc"><strong>Termux</strong> is free and has a built-in SSH client — no extra app needed. Or try <strong>JuiceSSH</strong> if you want a polished UI. Install Tailscale from the Play Store. Same setup, different app icons.</div>
+      </div>
+      <div class="alt-card">
+        <div class="alt-icon">🪟</div>
+        <div class="alt-title">Windows (server)</div>
+        <div class="alt-desc">Enable <strong>OpenSSH Server</strong> in Settings &rarr; Apps &rarr; Optional Features. Install Tailscale for Windows. Same Tailscale IP, same SSH command. <code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-2); padding: 1px 4px; border-radius: 3px;">tmux</code> equivalent: use <strong>Windows Terminal</strong> + keep-alive settings.</div>
+      </div>
+      <div class="alt-card">
+        <div class="alt-icon">🐧</div>
+        <div class="alt-title">Linux (server)</div>
+        <div class="alt-desc"><code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-2); padding: 1px 4px; border-radius: 3px;">sudo systemctl enable sshd</code> and install Tailscale via your package manager. You probably already know all this. tmux works natively. This is basically what you were born to do.</div>
+      </div>
+      <div class="alt-card">
+        <div class="alt-icon">📱</div>
+        <div class="alt-title">iPad</div>
+        <div class="alt-desc"><strong>Termius</strong> works great here too. Bigger screen = better experience. Pair with a Bluetooth keyboard and you've got a surprisingly capable coding setup. Some people add a Magic Trackpad and never look back.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-icon">💡</div>
+      <div class="callout-text">The core idea is the same everywhere: <strong>Tailscale + SSH + tmux</strong>. Only the apps change. If your device can run an SSH client and Tailscale, you're good.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: LEVEL UP -->
+  <div class="section fade-in" id="section-07">
+    <div class="section-number">07 — Level Up</div>
+    <h2>Power User Moves</h2>
+    <p>Got the basics working? Good. Now let's make it <em>actually</em> comfortable. These are the tweaks that separate "I can use it" from "I prefer it."</p>
+
+    <ul class="tip-list">
+      <li class="tip-item">
+        <div class="tip-title">
+          SSH key auth instead of password
+          <span class="tip-badge">security</span>
+        </div>
+        <div class="tip-desc">
+          Typing your Mac password on a phone keyboard every time is a special kind of torture. Generate an SSH key pair on your phone (<code>ssh-keygen -t ed25519</code> in Termius or Termux), copy the public key to your Mac's <code>~/.ssh/authorized_keys</code>, and never type a password again. Bonus: it's more secure than passwords because you can't brute-force a 256-bit key. Disable password auth entirely in <code>/etc/ssh/sshd_config</code> if you're feeling bold.
+        </div>
+      </li>
+      <li class="tip-item">
+        <div class="tip-title">
+          Better .tmux.conf
+          <span class="tip-badge">comfort</span>
+        </div>
+        <div class="tip-desc">
+          Default tmux is functional but ugly. Add <code>set -g mouse on</code> for scroll support (essential on phone). Set <code>setw -g mode-keys vi</code> for vim-style navigation. Change the status bar to show useful info. Remap the prefix from <code>Ctrl+B</code> to <code>Ctrl+A</code> (easier to reach). There are great minimal configs on GitHub — search "tmux sensible" for a solid starting point.
+        </div>
+      </li>
+      <li class="tip-item">
+        <div class="tip-title">
+          Mosh instead of SSH
+          <span class="tip-badge">reliability</span>
+        </div>
+        <div class="tip-desc">
+          If you're on flaky connections (cellular, train WiFi, that one coffee shop), Mosh is SSH's more resilient cousin. It handles network switches, high latency, and temporary disconnects gracefully. Your session doesn't die when you switch from WiFi to cellular. Install on Mac with <code>brew install mosh</code>, use Blink Shell on iPhone (it has built-in Mosh support). Downside: needs a UDP port open, which Tailscale handles fine.
+        </div>
+      </li>
+      <li class="tip-item">
+        <div class="tip-title">
+          Multiple named tmux sessions
+          <span class="tip-badge">workflow</span>
+        </div>
+        <div class="tip-desc">
+          Don't limit yourself to one session. Run <code>tmux new -s work</code> for work stuff, <code>tmux new -s personal</code> for side projects, <code>tmux new -s claude</code> for AI coding. Switch between them with <code>tmux attach -t work</code>. List all sessions with <code>tmux ls</code>. You can even create aliases for each: <code>alias sw='tmux attach -t work || tmux new -s work'</code>. It's like having multiple desktops, but in your pocket.
+        </div>
+      </li>
+    </ul>
+  </div>
+
   <!-- TL;DR -->
-  <div class="tldr">
+  <div class="tldr fade-in">
     <h3>TL;DR</h3>
     <ul>
-      <li>₹0 setup, 15 minutes, works from literally anywhere</li>
+      <li>&#x20B9;0 setup, 15 minutes, works from literally anywhere</li>
       <li>Double encrypted, zero open ports, invisible to the internet</li>
       <li>One command (<code style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">sg</code>) on any device = Claude Code</li>
       <li>Safer than your office WiFi, and definitely safer than that one guy whose password is <code style="color: var(--orange); font-family: 'JetBrains Mono', monospace;">password123</code></li>
     </ul>
   </div>
 
-  <div class="footer">
+  <div class="footer fade-in">
+    <a href="https://github.com/samyakgoyal/claude-code-from-phone" target="_blank" rel="noopener noreferrer" class="github-star-btn">
+      <svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279L12 19.771l-7.416 3.642 1.48-8.279L0 9.306l8.332-1.151z"/></svg>
+      Star on GitHub
+    </a>
+    <br>
     Built by someone who wanted to debug microservices between sets at the gym.<br>
     The code doesn't care where you are. Neither should you.
+    <div class="ps-note">P.S. This is tested on iPhone. Android folks — if you try it, let me know how it goes!</div>
+    <div class="made-with">made with caffeine and questionable priorities</div>
   </div>
 
 </div>
+
+<script>
+// ─── Reading Progress Bar ───
+function updateProgressBar() {
+  var winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+  var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  var scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+  document.getElementById('progressBar').style.width = scrolled + '%';
+}
+
+// ─── Back to Top Button ───
+var backToTopBtn = document.getElementById('backToTop');
+
+function updateBackToTop() {
+  if (window.scrollY > 400) {
+    backToTopBtn.classList.add('visible');
+  } else {
+    backToTopBtn.classList.remove('visible');
+  }
+}
+
+backToTopBtn.addEventListener('click', function() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ─── Scroll Event Handler (progress + back-to-top) ───
+window.addEventListener('scroll', function() {
+  updateProgressBar();
+  updateBackToTop();
+  updateMiniToc();
+}, { passive: true });
+
+// ─── Intersection Observer for Fade-in ───
+var fadeElements = document.querySelectorAll('.fade-in');
+var fadeObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, {
+  threshold: 0.1,
+  rootMargin: '0px 0px -40px 0px'
+});
+
+fadeElements.forEach(function(el) {
+  fadeObserver.observe(el);
+});
+
+// ─── Mini TOC Active State ───
+var sectionElements = document.querySelectorAll('.section[id], .hero');
+var tocLinks = document.querySelectorAll('.mini-toc a');
+
+function updateMiniToc() {
+  var scrollPos = window.scrollY + window.innerHeight / 3;
+  var currentSection = '';
+
+  document.querySelectorAll('.section[id]').forEach(function(section) {
+    if (section.offsetTop <= scrollPos) {
+      currentSection = section.id;
+    }
+  });
+
+  tocLinks.forEach(function(link) {
+    if (link.getAttribute('href') === '#' + currentSection) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
+}
+
+// ─── Copy to Clipboard ───
+function copyCode(button) {
+  var codeBlock = button.closest('.code-block');
+  var codeBody = codeBlock.querySelector('.code-body');
+  var text = codeBody.textContent;
+
+  navigator.clipboard.writeText(text).then(function() {
+    button.textContent = 'Copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'Copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }).catch(function() {
+    // Fallback for older browsers
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      button.textContent = 'Copied!';
+      button.classList.add('copied');
+      setTimeout(function() {
+        button.textContent = 'Copy';
+        button.classList.remove('copied');
+      }, 2000);
+    } catch (e) {
+      button.textContent = 'Failed';
+      setTimeout(function() {
+        button.textContent = 'Copy';
+      }, 2000);
+    }
+    document.body.removeChild(textarea);
+  });
+}
+
+// ─── Accordion Toggle ───
+function toggleAccordion(trigger) {
+  var item = trigger.closest('.accordion-item');
+  var content = item.querySelector('.accordion-content');
+  var isOpen = item.classList.contains('open');
+
+  if (isOpen) {
+    content.style.maxHeight = null;
+    item.classList.remove('open');
+  } else {
+    content.style.maxHeight = content.scrollHeight + 'px';
+    item.classList.add('open');
+  }
+}
+
+// ─── Initialize on load ───
+updateProgressBar();
+updateBackToTop();
+updateMiniToc();
+</script>
 
 </body>
 </html>

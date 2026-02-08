@@ -1,3 +1,7 @@
+[![GitHub stars](https://img.shields.io/github/stars/samyakgoyal/claude-code-from-phone)](https://github.com/samyakgoyal/claude-code-from-phone/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/github/actions/workflow/status/samyakgoyal/claude-code-from-phone/pages/pages-build-deployment?label=GitHub%20Pages)](https://samyakgoyal.github.io/claude-code-from-phone/)
+
 # Claude Code From Your Phone
 
 A guide for people who can't stop coding — even when their laptop is in another room.
@@ -71,6 +75,12 @@ Spoiler: it's always `sg`.
 | `Ctrl+B, P` | Previous window |
 | `Ctrl+B, W` | Window picker |
 | `tmux ls` | List sessions (see how many you forgot about) |
+
+---
+
+## Contributing
+
+Want to help? Check out the [contributing guide](CONTRIBUTING.md). TL;DR: issues for bugs, PRs for fixes, and if you got this working on Android, we want to hear about it.
 
 ---
 
