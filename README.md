@@ -69,3 +69,5 @@ For someone to break in, they'd need to compromise your Tailscale account, know 
 ---
 
 Built by someone who wanted to debug microservices between sets at the gym.
+
+**P.S.** This is tested on iPhone. Android folks — if you try it, let me know how it goes!
