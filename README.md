@@ -4,11 +4,13 @@
 
 # Claude Code From Your Phone
 
-A guide for people who can't stop coding — even when their laptop is in another room.
+Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) on your Mac from your iPhone. From anywhere. Home, office, gym, train, bathroom stall during a standup you forgot to mute.
 
-Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) from your iPhone. From anywhere. Home, office, gym, train, bathroom stall during a standup you forgot to mute.
+**[Read the full guide &rarr;](https://samyakgoyal.github.io/claude-code-from-phone/)**
 
-**[Read the pretty version →](https://samyakgoyal.github.io/claude-code-from-phone/)**
+<a href="https://samyakgoyal.github.io/claude-code-from-phone/">
+  <img src="og-image.png" alt="Claude Code From Your Phone" width="700">
+</a>
 
 ## How it works
 
@@ -16,7 +18,7 @@ Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) from your iPho
 iPhone (Termius) → Tailscale (WireGuard tunnel) → Mac (tmux + Claude Code)
 ```
 
-Your Mac stays plugged in and awake. Your phone becomes a window into its terminal. One command (`sg`), you're in. Close the app, walk away, come back hours later — session is exactly where you left it. Like a save point, but for your terminal.
+Your Mac stays plugged in and awake. Your phone becomes a window into its terminal. One command (`sg`), you're in. Close the app, walk away, come back hours later — session is exactly where you left it.
 
 ## The stack
 
@@ -27,15 +29,15 @@ Your Mac stays plugged in and awake. Your phone becomes a window into its termin
 | **tmux** | Keeps sessions alive when you disconnect. Pause button for terminals. | Free |
 | **SSH** | The actual connection. Built into macOS since before you were born (probably). | Free |
 
-**Total cost: $0. Setup time: ~15 min. Productivity lost to "let me just check one thing": immeasurable.**
+**Total cost: $0 &middot; Setup time: ~15 min &middot; Productivity lost to "let me just check one thing": immeasurable**
 
 ## Quick setup
 
-1. **Tailscale** — Install on Mac + iPhone, sign in with same account. VPN running? Disconnect it first. VPNs and Tailscale get along like two cats in a studio apartment.
-2. **SSH** — System Settings → General → Sharing → Remote Login → ON. That's it. Took longer to read this sentence.
-3. **Termius** — Add a host with your Tailscale IP + Mac username. Use whatever `whoami` outputs — not the literal word "whoami". Yes, this has happened.
+1. **Tailscale** — Install on Mac + iPhone, sign in with same account
+2. **SSH** — System Settings → General → Sharing → Remote Login → ON
+3. **Termius** — Add a host with your Tailscale IP + Mac username
 4. **tmux** — `brew install tmux` + the magic alias below
-5. **Stay awake** — Prevent Mac from sleeping. Mac sleeps = sessions die = sadness.
+5. **Stay awake** — Prevent Mac from sleeping
 
 ```bash
 # The magic alias (run once)
@@ -44,45 +46,24 @@ echo "alias sg='tmux attach -t claude || tmux new -s claude'" >> ~/.zshrc && sou
 
 Then from anywhere: **Termius → `sg` → you're coding**
 
-## Security (a.k.a. "why this won't get you fired")
+## Security
 
 - Zero open ports on your Mac — invisible to the public internet
 - Double encrypted: WireGuard (ChaCha20) + SSH (AES-256)
 - Only your Tailscale devices can reach your Mac
-- More secure than direct SSH with port forwarding, which exposes port 22 to the internet and gets hammered by bots 24/7
+- More secure than direct SSH with port forwarding
 
-For someone to break in, they'd need to compromise your Tailscale account, know your Tailscale IP, AND crack your SSH credentials — simultaneously. If someone can pull all that off, they don't need your terminal. They already own your life.
+For someone to break in, they'd need to compromise your Tailscale account, know your Tailscale IP, AND crack your SSH credentials — simultaneously. If someone can pull all that off, they don't need your terminal.
 
-## Daily usage
+## The full guide covers
 
-| Where | How |
-|-------|-----|
-| Gym, between sets | Termius → `sg` |
-| Office, at desk | Terminal → `sg` |
-| Coffee break | Termius → `sg` |
-| Commute | Termius → `sg` |
-| 2 AM, rethinking life choices | Termius → `sg` |
+- Step-by-step setup with copy-paste commands
+- How encryption flows through every layer
+- Troubleshooting (connection drops, sleep issues, VPN conflicts)
+- Platform alternatives (Android, Windows, Linux, iPad)
+- Power user tips (SSH keys, Mosh, better tmux config)
 
-Spoiler: it's always `sg`.
-
-## FAQ
-
-**Can I use another VPN alongside Tailscale?** On your Mac — yes, both run fine. On iPhone — no, iOS only allows one VPN at a time. Workaround: run the VPN on your Mac instead. Phone connects via Tailscale, Mac's traffic goes through the VPN.
-
-**Can't scroll in the terminal?** Add `set -g mouse on` to `~/.tmux.conf` on your Mac, then `tmux source ~/.tmux.conf`. Scrolling works after that.
-
-## tmux cheat sheet
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+B, D` | Detach (leave session running, go touch grass) |
-| `Ctrl+B, C` | New window |
-| `Ctrl+B, N` | Next window |
-| `Ctrl+B, P` | Previous window |
-| `Ctrl+B, W` | Window picker |
-| `tmux ls` | List sessions (see how many you forgot about) |
-
----
+**[Read it here &rarr;](https://samyakgoyal.github.io/claude-code-from-phone/)**
 
 ## Contributing
 
@@ -90,6 +71,4 @@ Want to help? Check out the [contributing guide](CONTRIBUTING.md). TL;DR: issues
 
 ---
 
-Built by someone who wanted to debug microservices between sets at the gym. The code doesn't care where you are. Neither should you.
-
-**P.S.** This is tested on iPhone. Android folks — if you try it, let me know how it goes!
+Built by [Samyak Goyal](https://github.com/samyakgoyal) — who wanted to debug microservices between sets at the gym. The code doesn't care where you are. Neither should you.
