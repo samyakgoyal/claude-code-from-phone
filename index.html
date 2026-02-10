@@ -1043,7 +1043,7 @@
   <div class="section fade-in" id="section-02">
     <div class="section-number">02 — How</div>
     <h2>How It Works</h2>
-    <p>Here's what happens when you open Termius from your couch and type <code style="color: var(--accent); background: var(--surface-2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 14px;">sg</code>:</p>
+    <p>Here's what happens when you open Termius from your couch and type <code style="color: var(--accent); background: var(--surface-2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 14px;">cc</code>:</p>
 
     <div class="diagram">
       <div class="diagram-flow">
@@ -1153,9 +1153,9 @@
           <div class="code-body"><span class="cmd">brew install</span> tmux
 
 <span class="comment"># Set up the shortcut (run once):</span>
-<span class="cmd">echo</span> <span class="string">"alias sg='tmux attach -t claude || tmux new -s claude'"</span> >> ~/.zshrc && <span class="cmd">source</span> ~/.zshrc</div>
+<span class="cmd">echo</span> <span class="string">"alias cc='tmux attach -t claude || tmux new -s claude'"</span> >> ~/.zshrc && <span class="cmd">source</span> ~/.zshrc</div>
         </div>
-        <p>Now <code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; background: var(--surface-2); padding: 2px 6px; border-radius: 4px;">sg</code> = instant Claude Code session. Attaches if one exists, creates if it doesn't.</p>
+        <p>Now <code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; background: var(--surface-2); padding: 2px 6px; border-radius: 4px;">cc</code> = instant Claude Code session. Attaches if one exists, creates if it doesn't.</p>
       </li>
 
       <li>
@@ -1182,27 +1182,27 @@
       <div class="scenario-row">
         <div class="emoji">🛋️</div>
         <div class="scene">Couch, phone only</div>
-        <div class="action">Termius &rarr; sg</div>
+        <div class="action">Termius &rarr; cc</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">💻</div>
         <div class="scene">Office, at your desk</div>
-        <div class="action">Terminal &rarr; sg</div>
+        <div class="action">Terminal &rarr; cc</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">☕</div>
         <div class="scene">Coffee break, phone</div>
-        <div class="action">Termius &rarr; sg</div>
+        <div class="action">Termius &rarr; cc</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">🚗</div>
         <div class="scene">Commute, phone</div>
-        <div class="action">Termius &rarr; sg</div>
+        <div class="action">Termius &rarr; cc</div>
       </div>
       <div class="scenario-row">
         <div class="emoji">🛏️</div>
         <div class="scene">2 AM, rethinking life</div>
-        <div class="action">Termius &rarr; sg</div>
+        <div class="action">Termius &rarr; cc</div>
       </div>
     </div>
 
@@ -1334,7 +1334,7 @@
         </button>
         <div class="accordion-content">
           <div class="accordion-content-inner">
-            Your Mac restarted. tmux sessions live in RAM — they don't survive reboots. macOS loves a good unsolicited restart (looking at you, automatic updates). Just run <code>sg</code> again to start a fresh session. If this keeps happening, go to <strong>System Settings &rarr; General &rarr; Software Update &rarr; Automatic Updates</strong> and turn off "Install macOS updates." You'll update when <em>you</em> decide, not when Apple does.
+            Your Mac restarted. tmux sessions live in RAM — they don't survive reboots. macOS loves a good unsolicited restart (looking at you, automatic updates). Just run <code>cc</code> again to start a fresh session. If this keeps happening, go to <strong>System Settings &rarr; General &rarr; Software Update &rarr; Automatic Updates</strong> and turn off "Install macOS updates." You'll update when <em>you</em> decide, not when Apple does.
           </div>
         </div>
       </div>
@@ -1342,12 +1342,12 @@
       <div class="accordion-item">
         <button class="accordion-trigger" onclick="toggleAccordion(this)">
           <span class="acc-icon">❓</span>
-          <span class="acc-label"><code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; background: none; padding: 0;">sg</code> command not found</span>
+          <span class="acc-label"><code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; background: none; padding: 0;">cc</code> command not found</span>
           <span class="acc-chevron">&#x276F;</span>
         </button>
         <div class="accordion-content">
           <div class="accordion-content-inner">
-            You're in a new shell that hasn't loaded your aliases. Run <code>source ~/.zshrc</code> and try again. If that doesn't work, check that the alias actually exists: <code>grep "alias sg" ~/.zshrc</code>. If it's not there, the setup step didn't stick — run the <code>echo</code> command from Step 4 again. If you use bash instead of zsh, you need <code>~/.bashrc</code> instead of <code>~/.zshrc</code>.
+            You're in a new shell that hasn't loaded your aliases. Run <code>source ~/.zshrc</code> and try again. If that doesn't work, check that the alias actually exists: <code>grep "alias cc" ~/.zshrc</code>. If it's not there, the setup step didn't stick — run the <code>echo</code> command from Step 4 again. If you use bash instead of zsh, you need <code>~/.bashrc</code> instead of <code>~/.zshrc</code>.
           </div>
         </div>
       </div>
@@ -1495,7 +1495,7 @@
     <ul>
       <li>&#x20B9;0 setup, 15 minutes, works from literally anywhere</li>
       <li>Double encrypted, zero open ports, invisible to the internet</li>
-      <li>One command (<code style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">sg</code>) on any device = Claude Code</li>
+      <li>One command (<code style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">cc</code>) on any device = Claude Code</li>
       <li>Safer than your office WiFi, and definitely safer than that one guy whose password is <code style="color: var(--orange); font-family: 'JetBrains Mono', monospace;">password123</code></li>
     </ul>
   </div>

@@ -18,7 +18,7 @@ Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) on your Mac fr
 iPhone (Termius) → Tailscale (WireGuard tunnel) → Mac (tmux + Claude Code)
 ```
 
-Your Mac stays plugged in and awake. Your phone becomes a window into its terminal. One command (`sg`), you're in. Close the app, walk away, come back hours later — session is exactly where you left it.
+Your Mac stays plugged in and awake. Your phone becomes a window into its terminal. One command (`cc`), you're in. Close the app, walk away, come back hours later — session is exactly where you left it.
 
 ## The stack
 
@@ -41,10 +41,10 @@ Your Mac stays plugged in and awake. Your phone becomes a window into its termin
 
 ```bash
 # The magic alias (run once)
-echo "alias sg='tmux attach -t claude || tmux new -s claude'" >> ~/.zshrc && source ~/.zshrc
+echo "alias cc='tmux attach -t claude || tmux new -s claude'" >> ~/.zshrc && source ~/.zshrc
 ```
 
-Then from anywhere: **Termius → `sg` → you're coding**
+Then from anywhere: **Termius → `cc` → you're coding**
 
 ## Security
 
