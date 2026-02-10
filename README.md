@@ -4,7 +4,7 @@
 
 # Claude Code From Your Phone
 
-Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) on your Mac from your iPhone. From anywhere. Home, office, gym, train, bathroom stall during a standup you forgot to mute.
+Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) on your Mac from your iPhone. From anywhere. Couch, coffee shop, bed, train — even the bathroom stall during a standup you forgot to mute.
 
 **[Read the full guide &rarr;](https://samyakgoyal.github.io/claude-code-from-phone/)**
 
@@ -71,4 +71,4 @@ Want to help? Check out the [contributing guide](CONTRIBUTING.md). TL;DR: issues
 
 ---
 
-Built by [Samyak Goyal](https://github.com/samyakgoyal) — who wanted to debug microservices between sets at the gym. The code doesn't care where you are. Neither should you.
+Built by [Samyak Goyal](https://github.com/samyakgoyal) — who wanted to ship code without leaving the couch. The code doesn't care where you are. Neither should you.

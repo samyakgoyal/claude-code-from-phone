@@ -30,4 +30,4 @@ Keep it simple. This is a single HTML file, not a React app. If your PR adds a `
 
 ## That's it
 
-No CLA. No lengthy code review process. No mandatory 47-step checklist. Just be kind, keep it useful, and maybe don't submit PRs from the gym mid-set. Or do. We're not your coach.
+No CLA. No lengthy code review process. No mandatory 47-step checklist. Just be kind, keep it useful, and maybe don't submit PRs from bed at 2 AM. Or do. We're not your parents.
